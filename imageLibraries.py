@@ -6,7 +6,7 @@ from time import time, localtime, strftime
 ec2 = boto3.resource('ec2')
 
 def getAllInstanceImages(instance):
-    """return all images for give instance"""
+    """return all AMI for give instance"""
     logging.debug("Start searching for images of instance %s",instance.id)
     images=ec2.images.filter(Filters=[
         {
