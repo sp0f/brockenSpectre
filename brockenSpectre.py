@@ -1,7 +1,7 @@
 import boto3
 import logging
 from tagLibraries import *
-from instanceLibraries import *
+#from instanceLibraries import *
 from imageLibraries import *
 
 # configuration
