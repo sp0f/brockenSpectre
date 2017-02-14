@@ -77,7 +77,7 @@ def createAMI(instance):
     # create ami name compliant with AWS AMI name standard:
     # Constraints: 3-128 alphanumeric characters, parentheses (()), square brackets ([]), spaces ( ), periods (.),
     # slashes (/), dashes (-), single quotes ('), at-signs (@), or underscores(_)
-    amiShortName="BACKUP-"+sub('[^A-Za-z0-9]+', '',instanceName[0:90])+"-"+strftime("%d%m%Y-%H%M%S(%Z)",localtime())
+    amiShortName="BACKUP-"+sub('[^A-Za-z0-9,-, ,/,\(,\),\[,\],\.,\/,\',@,_]+', '',instanceName[0:90])+"-"+strftime("%d%m%Y-%H%M%S(%Z)",localtime())
     ami=instance.create_image(
         Name=amiShortName,
         Description="BACKUP "+instanceName+"["+instance.id+"] "+strftime("%d.%m.%Y-%H:%M:%S (%Z)",localtime()),
