@@ -10,5 +10,5 @@ def findRunningInstances():
         for tag in instance.tags:
             if tag['Key'] == 'Name':
                 instanceName = tag['Value']
-        print str(instanceName) + "," + str(instance.id)
+        print(str(instanceName) + "," + str(instance.id))
     return instances
