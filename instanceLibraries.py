@@ -16,7 +16,7 @@ def findRunningInstances():
 
 def getFirstPrimaryIP(instance):
     """return first primary IP address of first network interface"""
-    addresses = instance.network_interfaces_attribute.[0]['PrivateIpAddresses']
+    addresses = instance.network_interfaces_attribute[0]['PrivateIpAddresses']
     for address in addresses:
         if address['Primary'] == True:
             logging.debug("Found primary IP address (%s) for instance %s",address['PrivateIpAddress'])
