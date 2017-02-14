@@ -19,7 +19,7 @@ def getFirstPrimaryIP(instance):
     addresses = instance.network_interfaces_attribute[0]['PrivateIpAddresses']
     for address in addresses:
         if address['Primary'] == True:
-            logging.debug("Found primary IP address (%s) for instance %s",address['PrivateIpAddress'])
+            logging.debug("Found primary IP address (%s) for instance %s", address['PrivateIpAddress'], instance.id)
             return address['PrivateIpAddress']
     logging.warning("Can't found primary IP address for instance %s",instance.id)
     return None
