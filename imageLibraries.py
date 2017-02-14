@@ -2,6 +2,7 @@ import boto3
 import logging
 from re import sub
 from tagLibraries import getTag
+from instanceLibraries import getFirstPrimaryIP
 from time import time, localtime, strftime
 
 ec2 = boto3.resource('ec2')
@@ -94,8 +95,16 @@ def createAMI(instance):
                 'Value': str(time())
             },
             {
-                'Key': 'fromInstance',
+                'Key': 'srcInstanceId',
                 'Value': instance.id
+            },
+            {
+                'Key': 'srcInstanceName',
+                'Value': instanceName
+            },
+            {
+                'Key': 'srcPrimaryIP',
+                'Value': getFirstPrimaryIP(instance)
             }
         ]
     )
