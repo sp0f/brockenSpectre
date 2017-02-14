@@ -7,6 +7,7 @@ ec2 = boto3.resource('ec2')
 
 def getAllInstanceImages(instance):
     """return all AMI for give instance"""
+    #TODO remove owner-id (at all or to config file)
     logging.debug("Start searching for images of instance %s",instance.id)
     images=ec2.images.filter(Filters=[
         {
@@ -42,11 +43,12 @@ def getExpiredImages(instance):
 
     images = getAllInstanceImages(instance)
 
-    retention = float(getTag(instance,"retention"))
+    retention = getTag(instance,"retention")
     if retention == None:
         logging.warning("Retention tag for instance %s not set, assume default",instance.id)
         retention = 7
     else:
+        retention=float(retention)
         logging.info("Retention for instance %s set to %s",instance.id,str(retention))
 
     numberOfImages = len(list(images)) # dirty method to get number of elements in boto3 collection
