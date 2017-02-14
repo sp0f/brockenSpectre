@@ -1,5 +1,6 @@
 import boto3
 import logging
+from re import sub
 from tagLibraries import getTag
 from time import time, localtime, strftime
 
@@ -73,7 +74,10 @@ def createAMI(instance):
     instanceName=getTag(instance,'Name')
     if instanceName == None: # if no Name tag found, use instance id instead
         instanceName=instance.id
-    amiShortName="BACKUP-"+instanceName[0:90]+"-"+strftime("%d%m%Y-%H%M%S(%Z)",localtime())
+    # create ami name compliant with AWS AMI name standard:
+    # Constraints: 3-128 alphanumeric characters, parentheses (()), square brackets ([]), spaces ( ), periods (.),
+    # slashes (/), dashes (-), single quotes ('), at-signs (@), or underscores(_)
+    amiShortName="BACKUP-"+sub('[^A-Za-z0-9]+', '',instanceName[0:90])+"-"+strftime("%d%m%Y-%H%M%S(%Z)",localtime())
     ami=instance.create_image(
         Name=amiShortName,
         Description="BACKUP "+instanceName+"["+instance.id+"] "+strftime("%d.%m.%Y-%H:%M:%S (%Z)",localtime()),
