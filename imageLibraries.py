@@ -70,7 +70,7 @@ def getExpiredImages(instance):
     return expiredImageList
 
 def createAMI(instance):
-    "create ami for a instance and tag it with needed tags"
+    """create ami for a instance and tag it with needed tags"""
     instanceName=getTag(instance,'Name')
     if instanceName == None: # if no Name tag found, use instance id instead
         instanceName=instance.id
