@@ -34,5 +34,10 @@ def main():
         expireImages(expireThisImages)
     logging.info('Backup finished')
 
+def mainTest():
+    ec2 = boto3.resource('ec2')
+    instance=ec2.Instance('i-0990673e61fc85a7a')
+    securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
+    print(securityGroupId,subnetId,primaryIp)
 if __name__ == '__main__':
-    main()
+    mainTest()

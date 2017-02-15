@@ -23,3 +23,15 @@ def getFirstPrimaryIP(instance):
             return address['PrivateIpAddress']
     logging.warning("Can't found primary IP address for instance %s",instance.id)
     return None
+
+def getBasicNetworkConfig(instance):
+    """get primary IP address of firest network interface and its subnet
+    return: securityGroupId, subnetId, primaryIp"""
+    network = instance.network_interfaces_attribute[0]
+    subnetId=network['SubnetId']
+    securityGroupId=network['Groups'][0]['GroupId']
+    for address in network['PrivateIpAddresses']:
+        if address['Primary'] == True:
+            logging.debug("Found primary IP address (%s) for instance %s", address['PrivateIpAddress'], instance.id)
+            primaryIp=address['PrivateIpAddress']
+    return securityGroupId, subnetId, primaryIp

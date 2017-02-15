@@ -2,7 +2,7 @@ import boto3
 import logging
 from re import sub
 from tagLibraries import getTag
-from instanceLibraries import getFirstPrimaryIP
+from instanceLibraries import getBasicNetworkConfig
 from time import time, localtime, strftime
 
 ec2 = boto3.resource('ec2')
@@ -84,6 +84,7 @@ def createAMI(instance):
         Description="BACKUP "+instanceName+"["+instance.id+"] "+strftime("%d.%m.%Y-%H:%M:%S (%Z)",localtime()),
         NoReboot=True
     )
+    securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
     ami.create_tags(
         Tags=[
             {
@@ -104,7 +105,15 @@ def createAMI(instance):
             },
             {
                 'Key': 'srcPrimaryIP',
-                'Value': getFirstPrimaryIP(instance)
+                'Value': primaryIp
+            },
+            {
+                'Key': 'srcSubnetId',
+                'Value': subnetId
+            },
+            {
+                'Key': 'srcSecurityGroupId',
+                'Value': securityGroupId
             }
         ]
     )
