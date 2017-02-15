@@ -4,17 +4,17 @@ from re import sub
 from tagLibraries import getTag
 from instanceLibraries import getBasicNetworkConfig
 from time import time, localtime, strftime
+import getConfigValue
 
 ec2 = boto3.resource('ec2')
 
-def getAllInstanceImages(instance):
+def getAllInstanceImages(instance,):
     """return all AMI for give instance"""
-    #TODO remove owner-id (at all or to config file)
     logging.debug("Start searching for images of instance %s",instance.id)
     images=ec2.images.filter(Filters=[
         {
             'Name': 'owner-id',
-            'Values': ['260187409195']
+            'Values': [getConfigValue.ownerId]
         },
         {
             'Name': 'tag:srcInstanceId',
@@ -34,12 +34,11 @@ def getExpiredImages(instance):
     """return list of expired images based on:
         * image created tag
         * instance retention tag
-        * expirationPeriodInDays variable (default: 7)
 
-        Image will be expired only if created date is older than expirationPeriodInDays and number of images is grater than
+        Image will be expired only if created date is older than retention and number of images is grater than
         instance retention tag value.
 
-        If there arent any images to be expired it will return None
+        If there aren't any images to be expired it will return None
     """
     expiredImageList=[]
 
@@ -48,7 +47,7 @@ def getExpiredImages(instance):
     retention = getTag(instance,"retention")
     if retention == None:
         logging.warning("Retention tag for instance %s not set, assume default",instance.id)
-        retention = 7
+        retention = getConfigValue.retention
     else:
         retention=float(retention)
         logging.info("Retention for instance %s set to %s",instance.id,str(retention))
