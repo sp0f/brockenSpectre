@@ -17,7 +17,7 @@ def getAllInstanceImages(instance):
             'Values': ['260187409195']
         },
         {
-            'Name': 'tag:fromInstance',
+            'Name': 'tag:srcInstanceId',
             'Values': [instance.id]
         }
     ])
