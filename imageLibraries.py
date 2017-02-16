@@ -3,10 +3,11 @@ import logging
 from re import sub
 from tagLibraries import getTag
 from instanceLibraries import getBasicNetworkConfig
-from time import time, localtime, strftime
+from time import time, localtime, strftime, strptime, mktime
 import getConfigValue
 
 ec2 = boto3.resource('ec2')
+
 
 def getAllInstanceImages(instance,):
     """return all AMI for give instance"""
@@ -29,6 +30,21 @@ def getAllInstanceImages(instance,):
             for image in images:
                 logging.debug("Found image %s for instance %s",image.id, instance.id)
     return images
+
+
+def getNewestInstanceImage(instance):
+    """return newest image ID for instance"""
+    images = getAllInstanceImages(instance)
+    if images == None:
+        logging.critical("Can't find any images for instance %s", instance.id)
+
+    images=sorted(images, key=lambda image: mktime(strptime(image.creation_date[:-5], "%Y-%m-%dT%H:%M:%S")), reverse=True)
+    logging.info("Newest image id %s", images[0].id)
+
+#    for image in images:
+#        print(image.creation_date,image.id)
+    return images[0].id
+
 
 def getExpiredImages(instance):
     """return list of expired images based on:
