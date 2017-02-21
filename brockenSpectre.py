@@ -1,5 +1,6 @@
 import boto3
 import logging
+import os, sys
 from tagLibraries import *
 #from instanceLibraries import *
 from imageLibraries import *
@@ -8,6 +9,9 @@ import getConfigValue
 
 def main():
     ec2 = boto3.resource('ec2')
+
+    # set working directory to script directory
+    os.chdir(os.path.dirname(sys.argv[0]))
 
     # configure and start logging
     #logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', filename=logFilePath, level=logging.INFO)
