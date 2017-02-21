@@ -1,5 +1,6 @@
 import boto3
 import logging
+from imageLibraries import getNewestInstanceImage
 ec2 = boto3.resource('ec2')
 
 
