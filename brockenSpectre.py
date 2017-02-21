@@ -14,8 +14,8 @@ def main():
     os.chdir(os.path.dirname(sys.argv[0]))
 
     # configure and start logging
-    #logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', filename=logFilePath, level=logging.INFO)
-    logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=getConfigValue.logLevel)
+    logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', filename=getConfigValue.logFilePath, level=getConfigValue.logLevel)
+    #logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=getConfigValue.logLevel)
     #suppress most of boto library logs
     logging.getLogger('botocore').setLevel(getConfigValue.botoLogLevel)
     logging.getLogger('boto3').setLevel(getConfigValue.botoLogLevel)
