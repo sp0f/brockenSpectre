@@ -18,9 +18,9 @@ def findInstancesWithoutBackupTag():
             instancesList.append(instance)
     return instancesList
 
-def getTag(collection,tagKey):
+def getTag(taggedObject, tagKey):
     """get tag defined by tagKey param for collection(ec2.Instance, ec2.Image etc.)"""
-    for tag in collection.tags:
+    for tag in taggedObject.tags:
         if tag['Key'] == tagKey:
             logging.debug("Found tag %s with value %s",tagKey,tag['Value'])
             return tag['Value']

@@ -43,7 +43,7 @@ def getNewestInstanceImage(instance):
 
 #    for image in images:
 #        print(image.creation_date,image.id)
-    return images[0].id
+    return images[0]
 
 
 def getExpiredImages(instance):
@@ -129,6 +129,10 @@ def createAMI(instance):
             {
                 'Key': 'srcSecurityGroupId',
                 'Value': securityGroupId
+            },
+            {
+                'Key': 'srcInstanceType',
+                'Value': instance.instance_type
             }
         ]
     )
