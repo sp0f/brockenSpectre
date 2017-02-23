@@ -9,9 +9,9 @@ import getConfigValue
 ec2 = boto3.resource('ec2')
 
 
-def getAllInstanceImages(instance):
+def getAllInstanceImages(instanceId):
     """return all AMI for give instance"""
-    logging.debug("Start searching for images of instance %s",instance.id)
+    logging.debug("Start searching for images of instance %s",instanceId)
     images=ec2.images.filter(Filters=[
         {
             'Name': 'owner-id',
@@ -19,30 +19,48 @@ def getAllInstanceImages(instance):
         },
         {
             'Name': 'tag:srcInstanceId',
-            'Values': [instance.id]
+            'Values': [instanceId]
         }
     ])
     # only in DEBUG mode
     if (logging.getLogger().getEffectiveLevel() <= 10):
         if images == None:
-            logging.debug("Can't find any images for instance %s",instance.id)
+            logging.debug("Can't find any images for instance %s",instanceId)
         else:
             for image in images:
-                logging.debug("Found image %s for instance %s",image.id, instance.id)
+                logging.debug("Found image %s for instance %s",image.id, instanceId)
     return images
 
+def getAllBackupedInstancesIds():
+    """return list of all instances id that were backuped by this tool"""
+    images = ec2.images.filter(Filters=[
+        {
+            'Name': 'owner-id',
+            'Values': [getConfigValue.ownerId]
+        },
+        {
+            'Name': 'tag-key',
+            'Values': ["srcInstanceId"]
+        }
+    ])
 
-def getNewestInstanceImage(instance):
+    backupedInstances=[]
+    for image in images:
+       srcInstanceId=getTag(image,"srcInstanceId")
+       if srcInstanceId not in backupedInstances:
+           backupedInstances.append(srcInstanceId)
+
+    return backupedInstances
+
+def getNewestInstanceImage(instanceId):
     """return newest image ID for instance"""
-    images = getAllInstanceImages(instance)
+    images = getAllInstanceImages(instanceId)
     if images == None:
-        logging.critical("Can't find any images for instance %s", instance.id)
+        logging.critical("Can't find any images for instance %s", instanceId)
 
     images=sorted(images, key=lambda image: mktime(strptime(image.creation_date[:-5], "%Y-%m-%dT%H:%M:%S")), reverse=True)
     logging.info("Newest image id %s", images[0].id)
 
-#    for image in images:
-#        print(image.creation_date,image.id)
     return images[0]
 
 
@@ -58,7 +76,7 @@ def getExpiredImages(instance):
     """
     expiredImageList=[]
 
-    images = getAllInstanceImages(instance)
+    images = getAllInstanceImages(instance.id)
 
     retention = getTag(instance,"retention")
     if retention == None:
