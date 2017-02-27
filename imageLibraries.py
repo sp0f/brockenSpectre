@@ -161,3 +161,17 @@ def expireImages(images):
         for image in images:
             logging.info("Deregistering image %s",image.id)
             image.deregister()
+            deleteExpiredSnapshots(image.id)
+
+
+def deleteExpiredSnapshots(imageId):
+    snapshots = ec2.snapshots.filter( Filters=[
+        {
+            'Name': 'description',
+            'Values': ["Created by CreateImage* for "+imageId+" *"]
+        }
+    ])
+
+    for snapshot in snapshots:
+        logging.info("Cleanup snapshot %s for image %s", snapshot.id, imageId)
+        snapshot.delete()
