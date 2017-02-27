@@ -80,7 +80,7 @@ def getExpiredImages(instance):
 
     retention = getTag(instance,"retention")
     if retention == None:
-        logging.warning("Retention tag for instance %s not set, assume default",instance.id)
+        logging.info("Retention tag for instance %s not set, assume default",instance.id)
         retention = getConfigValue.retention
     else:
         retention=float(retention)
@@ -90,7 +90,7 @@ def getExpiredImages(instance):
 
     # need at least number of copies defined by retention
     if numberOfImages <= retention:
-        logging.warning("Number of existing backup images (%s) is less of equal than retention %s. Nothing will be expired.",str(numberOfImages),str(retention))
+        logging.info("Number of existing backup images (%s) is less of equal than retention %s. Nothing will be expired.",str(numberOfImages),str(retention))
         return None
 
     for image in images:
