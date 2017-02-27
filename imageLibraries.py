@@ -157,6 +157,7 @@ def createAMI(instance):
     return ami
 
 def expireImages(images):
+    """expire ami"""
     if images != None:
         for image in images:
             logging.info("Deregistering image %s",image.id)
@@ -165,6 +166,7 @@ def expireImages(images):
 
 
 def deleteExpiredSnapshots(imageId):
+    """delete snapshots created for deregistered ami"""
     snapshots = ec2.snapshots.filter(Filters=[
         {
             'Name': 'description',
