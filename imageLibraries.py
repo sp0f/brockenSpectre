@@ -165,7 +165,7 @@ def expireImages(images):
 
 
 def deleteExpiredSnapshots(imageId):
-    snapshots = ec2.snapshots.filter( Filters=[
+    snapshots = ec2.snapshots.filter(Filters=[
         {
             'Name': 'description',
             'Values': ["Created by CreateImage* for "+imageId+" *"]
