@@ -3,6 +3,7 @@ from sys import exit
 from time import time, localtime, strftime, strptime, mktime
 
 ec2 = boto3.resource('ec2')
+owner_id = "12345" # you need to set that
 
 def getTag(taggedObject, tagKey):
     """get tag defined by tagKey param for collection(ec2.Instance, ec2.Image etc.)"""
@@ -22,7 +23,7 @@ def getAllInstanceImages(instanceId):
     images=ec2.images.filter(Filters=[
         {
             'Name': 'owner-id',
-            'Values': ['260187409195']
+            'Values': [owner_id]
         },
         {
             'Name': 'tag:srcInstanceId',
