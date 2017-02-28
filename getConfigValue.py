@@ -8,7 +8,8 @@ def getYAMLConfig(configFile):
     return configDataYAML
 
 # configuration
-configDataYAML=getYAMLConfig("config.yaml")  # TODO move to cmd line option -c
+configDataYAML = getYAMLConfig("config.yaml")  # TODO move to cmd line option -c
+
 retention = configDataYAML["defaults"]["retention"]
 ownerId = configDataYAML["aws account id"]
 logFilePath = configDataYAML["defaults"]["log file path"]
