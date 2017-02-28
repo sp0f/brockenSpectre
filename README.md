@@ -10,11 +10,11 @@ Start it from cron and hope for the best :)
 #### Workflow
 1. get all instances with tag `backup` set to `true`
 2. for each of above instance
-  1. create AMI
-  2. tag AMI with tags needed for recovery (ip, subnet, name ...)
-  3. check instance `retention` tag
-  4. if there is a AMI that is older then number of days defined by `retention` and number of backups (AMIs) for this instance is grater than `retntion`
-    1. expire it
+  * create AMI
+  * tag AMI with tags needed for recovery (ip, subnet, name ...)
+  * check instance `retention` tag
+  * if there is a AMI that is older then number of days defined by `retention` and number of backups (AMIs) for this instance is grater than `retntion`
+    1. deregister it
     2. delete all snapshots belonging to this AMI
 
 #### Used tags
