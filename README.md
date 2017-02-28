@@ -1,13 +1,13 @@
 ### AWS EC2 instance backup using AMI (pyton/boto3)
 
-#### Alpha ALERT !
+### Alpha ALERT !
 This is totaly work in progress ... not suitable for usage jet
 
-#### How does it work
+### How does it work
 
 Start it from cron and hope for the best :)
 
-##### Workflow
+#### Workflow
 1. get all instances with tag `backup` set to `true`
 2. for each of above instance
   1. create AMI
@@ -17,12 +17,12 @@ Start it from cron and hope for the best :)
     1. expire it
     2. delete all snapshots belonging to this AMI
 
-##### Used tags
-###### Instance
+#### Used tags
+##### Instance
 * `backup` (`true |  false`) - if set to `true` instance will be backuped
 * `retention` - define backup retention. If not set `retention` from config file will be used
 
-###### AMI
+##### AMI
 * `Name` - ami name in format `BACKUP `+`instance_name`+`date`
 * `created` - in `time()` format (epoch)
 * `srcInstanceId` - source instance id
@@ -33,7 +33,7 @@ Start it from cron and hope for the best :)
 * `srcInstanceType` - source instance type (m4.large, t2.medium, ...)
 
 
-#### sample config file (config.yaml)
+### sample config file (config.yaml)
 
 ```
 defaults:
