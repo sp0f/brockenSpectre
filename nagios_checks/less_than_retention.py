@@ -28,23 +28,24 @@ def getTag(taggedObject, tagKey):
     return None
 
 def main():
+    print "1"
     scheduled_instances = getInstancesWithBackupTag()
 
     instance_list = []
     for instance in scheduled_instances:
-
+        print "2"
         instanceName = getTag(instance, 'Name')
         if instanceName == None:
             instanceName = ""
-
+        print "3"
         retention=getTag(instance,'retention')
         if retention == None:
             retention = 7
         else:
             retention = int(retention)
-
+        print "4"
         number_of_images = len(list(getAllInstanceImages(instance.id)))
-
+        print "5"
         if number_of_images < retention:
             instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
