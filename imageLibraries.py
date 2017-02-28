@@ -145,6 +145,7 @@ def createAMI(instance):
                 'Value': subnetId
             },
             {
+                # TODO it should be a list ...
                 'Key': 'srcSecurityGroupId',
                 'Value': securityGroupId
             },
