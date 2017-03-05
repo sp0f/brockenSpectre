@@ -3,6 +3,7 @@
 import boto3
 from sys import exit
 from time import time, localtime, strftime, strptime, mktime
+from calendar import timegm
 
 ec2 = boto3.resource('ec2')
 
@@ -56,7 +57,7 @@ def main():
             instance_list.append(instance.id + "(" + instanceName + ")")
         else:
             create_time = mktime(strptime(image.creation_date[:-5], "%Y-%m-%dT%H:%M:%S"))
-            if time() - create_time > (60*60*late_in_hours):
+            if timegm(localtime()) - create_time > (60*60*late_in_hours):
                 instance_list.append(instance.id + "(" + instanceName + ")")
 
     # nagios format check output
