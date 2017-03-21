@@ -30,6 +30,12 @@ def main():
         # deregister expired images
         expireThisImages = getExpiredImages(instance)
         expireImages(expireThisImages)
+
+        # deregister abandoned images (images for non existing instances)
+        if getConfigValue.deleteAbandoned == True:
+            abandoned_images = get_abandoned_images()
+            for image in abandoned_images:
+                expireImages(image)
     logging.info('Backup finished')
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import logging
 from re import sub
 from tagLibraries import getTag
@@ -51,6 +52,35 @@ def getAllBackupedInstancesIds():
            backupedInstances.append(srcInstanceId)
 
     return backupedInstances
+
+def get_abandoned_images():
+    backuped_instance_ids=getAllBackupedInstancesIds()
+    abandoned_images = []
+    for instance_id in backuped_instance_ids:
+        if instance_exists(instance_id) == False:
+            logging.warning("Fond images for non existing instance %s", instance_id)
+            abandoned_images.extend(list(getAllInstanceImages(instance_id)))
+    # only in DEBUG mode
+    if (logging.getLogger().getEffectiveLevel() <= 10):
+        for image in abandoned_images:
+            name=getTag(image, 'Name')
+            created=getTag(image, 'created')
+            logging.debug("Abandoned image %s %s %s", image.id, name, created)
+    return abandoned_images
+
+
+def instance_exists(instance_id):
+    """check if instance exists, return True or False"""
+    instance = ec2.Instance(instance_id)
+    try:
+        instance.load()
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "InvalidInstanceID.NotFound":
+            return False
+        else:
+            raise
+    else:
+        return True
 
 def getNewestInstanceImage(instanceId):
     """return newest image ID for instance"""
