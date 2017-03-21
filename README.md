@@ -42,5 +42,6 @@ defaults:
   # [10,20,30,40,50]... higher number, less logs (https://docs.python.org/2/library/logging.html#logging-levels)
   log level: 10
   boto log level: 50
+  delete abandoned: False
 aws account id: "1234567890"
 ```
