@@ -16,47 +16,67 @@ def getTag(taggedObject, tagKey):
 
 def getInstancesWithBackupTag(backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""
-
     instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
     return instances
 
-def getAllInstanceImages(instanceId):
-    """return all AMI for give instance"""
+def getAllInstancesImages():
+    """get instance.id list, return all AMI for give instance"""
     images=ec2.images.filter(Filters=[
         {
-            'Name': 'tag:srcInstanceId',
-            'Values': [instanceId]
+            'Name': 'tag-key',
+            'Values': ["srcInstanceId"]
         }
     ])
-
     return images
 
 
-def getNewestInstanceImage(instanceId):
-    """return newest image ID for instance"""
-    images = getAllInstanceImages(instanceId)
-    images=sorted(images, key=lambda image: mktime(strptime(image.creation_date[:-5], "%Y-%m-%dT%H:%M:%S")), reverse=True)
-
-    if len(list(images)) == 0:
+def getLatestCreationDate(image_ids, images_with_creation_date):
+    max_creation_date = "1970-01-01T00:00:00.000Z"
+    latest_image = ""
+    for image_id, creation_date in images_with_creation_date.iteritems():
+        if image_id in image_ids:
+            if creation_date > max_creation_date:
+                max_creation_date=creation_date
+                # latest_image=image_id
+    if max_creation_date == "1970-01-01T00:00:00.000Z":
         return None
-    return images[0]
+    else:
+        # print "latest: "+latest_image+" "+max_creation_date
+        return max_creation_date
 
 def main():
-    late_in_hours=24
-    scheduled_instances=getInstancesWithBackupTag()
+    late_in_hours = 24
+    scheduled_instances = getInstancesWithBackupTag()
 
-    instance_list=[]
+    instance_list = []
+    images = getAllInstancesImages()
+
+    # prepare useful dicts
+    image_with_instance_id = {}
+    image_with_creation_date = {}
+    for image in images:
+        image_with_instance_id[image.id] = getTag(image,"srcInstanceId")
+        image_with_creation_date[image.id] = image.creation_date
+
     for instance in scheduled_instances:
+        instance_images = []
+
+        for image_id, instance_id in image_with_instance_id.iteritems():
+            if instance_id == instance.id:
+                instance_images.append(image_id)
+
+
         instanceName = getTag(instance, 'Name')
 
         if instanceName == None:
             instanceName = ""
 
-        image=getNewestInstanceImage(instance.id)
-        if image == None:
+        latest_creation_date=getLatestCreationDate(instance_images,image_with_creation_date)
+
+        if latest_creation_date == None:
             instance_list.append(instance.id + "(" + instanceName + ")")
         else:
-            create_time = mktime(strptime(image.creation_date[:-5], "%Y-%m-%dT%H:%M:%S"))
+            create_time = mktime(strptime(latest_creation_date[:-5], "%Y-%m-%dT%H:%M:%S"))
             if timegm(localtime()) - create_time > (60*60*late_in_hours):
                 instance_list.append(instance.id + "(" + instanceName + ")")
 
