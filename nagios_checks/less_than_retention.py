@@ -11,15 +11,14 @@ def getInstancesWithBackupTag(backupTagValue="true"):
     instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
     return instances
 
-def getAllInstanceImages(instanceId):
-    """return all AMI for give instance"""
+def getAllInstancesImages():
+    """get instance.id list, return all AMI for give instance"""
     images=ec2.images.filter(Filters=[
         {
-            'Name': 'tag:srcInstanceId',
-            'Values': [instanceId]
+            'Name': 'tag-key',
+            'Values': ["srcInstanceId"]
         }
     ])
-
     return images
 
 def getTag(taggedObject, tagKey):
@@ -30,9 +29,15 @@ def getTag(taggedObject, tagKey):
     return None
 
 def main():
-    scheduled_instances = getInstancesWithBackupTag()
-
     instance_list = []
+    image_with_instance_id = {}
+    scheduled_instances = getInstancesWithBackupTag()
+    images = getAllInstancesImages()
+
+    # prepare useful dict
+    for image in images:
+        image_with_instance_id[image.id] = getTag(image, "srcInstanceId")
+
     for instance in scheduled_instances:
         instanceName = getTag(instance, 'Name')
         if instanceName == None:
@@ -42,7 +47,10 @@ def main():
             retention = 7
         else:
             retention = int(retention)
-        number_of_images = len(list(getAllInstanceImages(instance.id)))
+        number_of_images = 0
+        for image_id, backuped_instance_id in image_with_instance_id.iteritems():
+            if backuped_instance_id == instance.id:
+                number_of_images += 1
         if number_of_images < retention:
             instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
