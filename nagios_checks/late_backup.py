@@ -2,8 +2,9 @@
 
 import boto3
 from sys import exit
-from time import time, localtime, strftime, strptime, mktime
-from calendar import timegm
+from datetime import datetime
+#from time import time, localtime, strftime, strptime, mktime
+#from calendar import timegm
 
 ec2 = boto3.resource('ec2')
 
@@ -45,7 +46,7 @@ def getLatestCreationDate(image_ids, images_with_creation_date):
         return max_creation_date
 
 def main():
-    late_in_hours = 24
+    late_in_hours = 25
     scheduled_instances = getInstancesWithBackupTag()
 
     instance_list = []
@@ -76,8 +77,8 @@ def main():
         if latest_creation_date == None:
             instance_list.append(instance.id + "(" + instanceName + ")")
         else:
-            create_time = mktime(strptime(latest_creation_date[:-5], "%Y-%m-%dT%H:%M:%S"))
-            if timegm(localtime()) - create_time > (60*60*late_in_hours):
+            create_time = datetime.strptime(latest_creation_date[:-5], "%Y-%m-%dT%H:%M:%S")
+            if (datetime.utcnow()-create_time).total_seconds()/60/60 >late_in_hours:
                 instance_list.append(instance.id + "(" + instanceName + ")")
 
     # nagios format check output
