@@ -148,6 +148,9 @@ def createAMI(instance):
         NoReboot=True
     )
     securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
+    logging.info("Waiting for image %s existence", ami.id)
+    ami.wait_until_exists();
+
     ami.create_tags(
         Tags=[
             {
