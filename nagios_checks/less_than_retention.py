@@ -29,9 +29,12 @@ def getTag(taggedObject, tagKey):
             return tag['Value']
     return None
 def getInstacneCreateTime(instance):
-    #print instance.id
-    rootVolumeId=list(instance.volumes.filter(Filters=[{'Name': 'attachment.device', 'Values':["/dev/sda1","/dev/xvda"]}]))[0].id
-    return ec2.Volume(rootVolumeId).create_time
+    print instance.id
+    if instance.state['Code'] != 48: # if instance is not in Terminated state
+        rootVolumeId=list(instance.volumes.filter(Filters=[{'Name': 'attachment.device', 'Values':["/dev/sda1","/dev/xvda"]}]))[0].id
+        return ec2.Volume(rootVolumeId).create_time
+    else:
+        return None
 
 def main():
     instance_list = []
@@ -59,17 +62,14 @@ def main():
                 number_of_images += 1
         # no alerts for newly created instances
         createTime=getInstacneCreateTime(instance)
-        #if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
-           #print "New instance: "+instanceName+"created: "+str(createTime)
-        #    new_instance_list.append(instanceName+"("+str(createTime)+")")
-        #    continue
         if number_of_images < retention:
-            if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
-                #print "New instance: "+instanceName+"created: "+str(createTime)
-                new_instance_list.append(instanceName+"("+str(createTime)+")")
-                continue
-            else:
-                instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
+            if createTime is not None: # instance were terminated
+                if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
+                    #print "New instance: "+instanceName+"created: "+str(createTime)
+                    new_instance_list.append(instanceName+"("+str(createTime)+")")
+                    continue
+                else:
+                    instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
     # nagios format check output
     if len(instance_list) != 0:
