@@ -2,6 +2,7 @@
 
 import boto3
 from sys import exit
+import datetime
 
 ec2 = boto3.resource('ec2')
 
@@ -27,9 +28,14 @@ def getTag(taggedObject, tagKey):
         if tag['Key'] == tagKey:
             return tag['Value']
     return None
+def getInstacneCreateTime(instance):
+    #print instance.id
+    rootVolumeId=list(instance.volumes.filter(Filters=[{'Name': 'attachment.device', 'Values':["/dev/sda1","/dev/xvda"]}]))[0].id
+    return ec2.Volume(rootVolumeId).create_time
 
 def main():
     instance_list = []
+    new_instance_list = []
     image_with_instance_id = {}
     scheduled_instances = getInstancesWithBackupTag()
     images = getAllInstancesImages()
@@ -51,6 +57,12 @@ def main():
         for image_id, backuped_instance_id in image_with_instance_id.iteritems():
             if backuped_instance_id == instance.id:
                 number_of_images += 1
+        # no alerts for newly created instances
+        createTime=getInstacneCreateTime(instance)
+        if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
+            #print "New instance: "+instanceName+"created: "+str(createTime)
+            new_instance_list.append(instanceName+"("+str(createTime)+")")
+            continue
         if number_of_images < retention:
             instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
@@ -59,7 +71,8 @@ def main():
         print "CRITICAL backup retention problem for instance(s): " + ", ".join(instance_list) + " | " + str(len(instance_list))
         exit(2)
     else:
-        print "OK | 0"
+        additional_info="new(unchecked) instances: "+", ".join(new_instance_list)
+        print "OK: "+additional_info+" | 0"
         exit(0)
 if __name__ == '__main__':
     main()
