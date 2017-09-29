@@ -73,7 +73,7 @@ def main():
 
     # nagios format check output
     if len(instance_list) != 0:
-        print "CRITICAL backup retention problem for instance(s): " + ", ".join(instance_list) + " | " + str(len(instance_list))
+        print "CRITICAL: backup retention problem for instance(s): " + ", ".join(instance_list) + " | " + str(len(instance_list))
         exit(2)
     else:
         additional_info="new(unchecked) instances: "+", ".join(new_instance_list)
