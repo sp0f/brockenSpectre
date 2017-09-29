@@ -59,12 +59,17 @@ def main():
                 number_of_images += 1
         # no alerts for newly created instances
         createTime=getInstacneCreateTime(instance)
-        if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
-            #print "New instance: "+instanceName+"created: "+str(createTime)
-            new_instance_list.append(instanceName+"("+str(createTime)+")")
-            continue
+        #if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
+           #print "New instance: "+instanceName+"created: "+str(createTime)
+        #    new_instance_list.append(instanceName+"("+str(createTime)+")")
+        #    continue
         if number_of_images < retention:
-            instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
+            if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
+                #print "New instance: "+instanceName+"created: "+str(createTime)
+                new_instance_list.append(instanceName+"("+str(createTime)+")")
+                continue
+            else:
+                instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
     # nagios format check output
     if len(instance_list) != 0:
