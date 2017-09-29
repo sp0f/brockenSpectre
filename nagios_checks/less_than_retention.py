@@ -60,9 +60,9 @@ def main():
         for image_id, backuped_instance_id in image_with_instance_id.iteritems():
             if backuped_instance_id == instance.id:
                 number_of_images += 1
-        # no alerts for newly created instances
-        createTime=getInstacneCreateTime(instance)
         if number_of_images < retention:
+            # no alerts for newly created instances
+            createTime=getInstacneCreateTime(instance)
             if createTime is not None: # instance were terminated
                 if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
                     #print "New instance: "+instanceName+"created: "+str(createTime)
