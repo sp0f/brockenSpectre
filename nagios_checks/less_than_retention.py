@@ -65,9 +65,7 @@ def main():
             createTime=getInstacneCreateTime(instance)
             if createTime is not None: # instance were terminated
                 if (datetime.datetime.now().replace(tzinfo=None) - createTime.replace(tzinfo=None) < datetime.timedelta(days=retention)):
-                    #print "New instance: "+instanceName+"created: "+str(createTime)
                     new_instance_list.append(instanceName+"("+str(createTime)+")")
-                    continue
                 else:
                     instance_list.append(instance.id + "(" + instanceName + ") " + str(number_of_images) + "/" + str(retention))
 
