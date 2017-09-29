@@ -29,7 +29,7 @@ def getTag(taggedObject, tagKey):
             return tag['Value']
     return None
 def getInstacneCreateTime(instance):
-    print instance.id
+    #print instance.id
     if instance.state['Code'] != 48: # if instance is not in Terminated state
         rootVolumeId=list(instance.volumes.filter(Filters=[{'Name': 'attachment.device', 'Values':["/dev/sda1","/dev/xvda"]}]))[0].id
         return ec2.Volume(rootVolumeId).create_time
