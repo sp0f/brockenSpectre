@@ -1,7 +1,7 @@
 import boto3
 import logging
 
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
 # find instances without backup tag
 def findInstancesWithoutBackupTag():
@@ -42,7 +42,8 @@ def getInstancesByName(instanceName):
 def getInstancesWithBackupTag(backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""
 
-    instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
+    #instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
+    instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]},{"Name": "instance-state-name", "Values": ["running","stopping","stopped"]}])
     for instance in instances:
         instanceName=getTag(instance,"Name")
         logging.info("Found instance %s (%s) with 'backup' tag set to '%s'",instanceName,instance.id,backupTagValue)

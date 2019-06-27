@@ -6,7 +6,7 @@ from datetime import datetime
 #from time import time, localtime, strftime, strptime, mktime
 #from calendar import timegm
 
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2',region_name='eu-west-1')
 
 def getTag(taggedObject, tagKey):
     """get tag defined by tagKey param for collection(ec2.Instance, ec2.Image etc.)"""
@@ -17,7 +17,17 @@ def getTag(taggedObject, tagKey):
 
 def getInstancesWithBackupTag(backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""
-    instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
+    #instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
+    instances = ec2.instances.filter(Filters=[
+        {
+        "Name": "tag:backup",
+        "Values": [backupTagValue]
+        },
+        {
+            "Name": "instance-state-name",
+            "Values": ["running", "stopping", "stopped"]
+        }
+    ])
     return instances
 
 def getAllInstancesImages():

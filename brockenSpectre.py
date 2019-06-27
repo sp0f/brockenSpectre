@@ -8,7 +8,7 @@ import getConfigValue
 
 
 def main():
-    ec2 = boto3.resource('ec2')
+    ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
     # configure and start logging
     logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', filename=getConfigValue.logFilePath, level=getConfigValue.logLevel)

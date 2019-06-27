@@ -3,7 +3,7 @@
 import boto3
 from sys import exit
 
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
 def findInstancesWithoutBackupTag():
     """Find instances without backup tag"""

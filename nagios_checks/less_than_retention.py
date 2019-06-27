@@ -4,7 +4,7 @@ import boto3
 from sys import exit
 import datetime
 
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
 def getInstancesWithBackupTag(backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""

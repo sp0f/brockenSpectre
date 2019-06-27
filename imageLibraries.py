@@ -7,7 +7,7 @@ from instanceLibraries import getBasicNetworkConfig
 from time import time, localtime, strftime, strptime, mktime
 import getConfigValue
 
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
 
 def getAllInstanceImages(instanceId):

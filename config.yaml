@@ -1,0 +1,8 @@
+defaults:
+        retention: 7
+        log file path: "./brockenSpectre.log"
+        # [10,20,30,40,50]... higher number, less logs (https://docs.python.org/2/library/logging.html#logging-levels)
+        log level: 20
+        boto log level: 50
+        delete abandoned: True
+aws account id: "260187409195"
