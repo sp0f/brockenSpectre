@@ -6,7 +6,6 @@ from datetime import datetime
 #from time import time, localtime, strftime, strptime, mktime
 #from calendar import timegm
 
-ec2 = boto3.resource('ec2',region_name='eu-west-1')
 
 def getTag(taggedObject, tagKey):
     """get tag defined by tagKey param for collection(ec2.Instance, ec2.Image etc.)"""
@@ -15,7 +14,7 @@ def getTag(taggedObject, tagKey):
             return tag['Value']
     return None
 
-def getInstancesWithBackupTag(backupTagValue="true"):
+def getInstancesWithBackupTag(ec2,backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""
     #instances = ec2.instances.filter(Filters=[{"Name": "tag:backup", "Values": [backupTagValue]}])
     instances = ec2.instances.filter(Filters=[
@@ -30,7 +29,7 @@ def getInstancesWithBackupTag(backupTagValue="true"):
     ])
     return instances
 
-def getAllInstancesImages():
+def getAllInstancesImages(ec2):
     """get instance.id list, return all AMI for give instance"""
     images=ec2.images.filter(Filters=[
         {
@@ -56,40 +55,45 @@ def getLatestCreationDate(image_ids, images_with_creation_date):
         return max_creation_date
 
 def main():
+    regions = [ 'eu-west-1', 'eu-central-1' ]
     late_in_hours = 25
-    scheduled_instances = getInstancesWithBackupTag()
 
     instance_list = []
-    images = getAllInstancesImages()
-
-    # prepare useful dicts
-    image_with_instance_id = {}
-    image_with_creation_date = {}
-    for image in images:
-        image_with_instance_id[image.id] = getTag(image,"srcInstanceId")
-        image_with_creation_date[image.id] = image.creation_date
-
-    for instance in scheduled_instances:
-        instance_images = []
-
-        for image_id, instance_id in image_with_instance_id.iteritems():
-            if instance_id == instance.id:
-                instance_images.append(image_id)
-
-
-        instanceName = getTag(instance, 'Name')
-
-        if instanceName == None:
-            instanceName = ""
-
-        latest_creation_date=getLatestCreationDate(instance_images,image_with_creation_date)
-
-        if latest_creation_date == None:
-            instance_list.append(instance.id + "(" + instanceName + ")")
-        else:
-            create_time = datetime.strptime(latest_creation_date[:-5], "%Y-%m-%dT%H:%M:%S")
-            if (datetime.utcnow()-create_time).total_seconds()/60/60 >late_in_hours:
+    for region in regions:
+        ec2 = boto3.resource('ec2',region_name=region)
+        scheduled_instances = getInstancesWithBackupTag(ec2)
+        images = getAllInstancesImages(ec2)
+        for instance in scheduled_instances:
+            print(instance.id)
+    
+        # prepare useful dicts
+        image_with_instance_id = {}
+        image_with_creation_date = {}
+        for image in images:
+            image_with_instance_id[image.id] = getTag(image,"srcInstanceId")
+            image_with_creation_date[image.id] = image.creation_date
+    
+        for instance in scheduled_instances:
+            instance_images = []
+    
+            for image_id, instance_id in image_with_instance_id.iteritems():
+                if instance_id == instance.id:
+                    instance_images.append(image_id)
+    
+    
+            instanceName = getTag(instance, 'Name')
+    
+            if instanceName == None:
+                instanceName = ""
+    
+            latest_creation_date=getLatestCreationDate(instance_images,image_with_creation_date)
+    
+            if latest_creation_date == None:
                 instance_list.append(instance.id + "(" + instanceName + ")")
+            else:
+                create_time = datetime.strptime(latest_creation_date[:-5], "%Y-%m-%dT%H:%M:%S")
+                if (datetime.utcnow()-create_time).total_seconds()/60/60 >late_in_hours:
+                    instance_list.append(instance.id + "(" + instanceName + ")")
 
     # nagios format check output
     if len(instance_list) != 0:

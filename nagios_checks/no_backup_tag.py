@@ -3,9 +3,8 @@
 import boto3
 from sys import exit
 
-ec2 = boto3.resource('ec2', region_name='eu-west-1')
 
-def findInstancesWithoutBackupTag():
+def findInstancesWithoutBackupTag(ec2):
     """Find instances without backup tag"""
     instances = ec2.instances.all()
 
@@ -29,13 +28,17 @@ def getTag(taggedObject, tagKey):
 
 def main():
     instance_list = []
-    instances = findInstancesWithoutBackupTag()
-    for instance in instances:
-        instanceName=getTag(instance,'Name')
-
-        if instanceName == None:
-            instanceName = ""
-        instance_list.append(instance.id + "(" + instanceName + ")")
+    regions = [ 'eu-west-1', 'eu-central-1' ]
+    
+    for region in regions:
+        ec2 = boto3.resource('ec2',region_name=region)
+        instances = findInstancesWithoutBackupTag(ec2)
+        for instance in instances:
+            instanceName=getTag(instance,'Name')
+    
+            if instanceName == None:
+                instanceName = ""
+            instance_list.append(instance.id + "(" + instanceName + ")")
 
     # nagios format check output
     if len(instance_list) != 0:
