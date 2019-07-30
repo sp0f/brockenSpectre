@@ -8,6 +8,7 @@ from time import time, localtime, strftime, strptime, mktime
 import getConfigValue
 
 ec2 = boto3.resource('ec2', region_name='eu-west-1')
+ec2_client = boto3.client('ec2', region_name='eu-west-1')
 
 
 def getAllInstanceImages(instanceId):
@@ -148,8 +149,18 @@ def createAMI(instance):
         NoReboot=True
     )
     securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
-    logging.info("Waiting for image %s existence", ami.id)
-    ami.wait_until_exists();
+    logging.info("Waiting for image %s to become available", ami.id)
+    #ami.wait_until_exists();
+    waiter = ec2_client.get_waiter('image_available')
+    waiter.wait(
+        ImageIds=[
+            ami.id
+        ],
+        WaiterConfig={
+            'Delay': 30,
+            'MaxAttempts': 40
+        }
+    )
 
     ami.create_tags(
         Tags=[
