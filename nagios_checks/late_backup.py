@@ -63,8 +63,8 @@ def main():
         ec2 = boto3.resource('ec2',region_name=region)
         scheduled_instances = getInstancesWithBackupTag(ec2)
         images = getAllInstancesImages(ec2)
-        for instance in scheduled_instances:
-            print(instance.id)
+        #for instance in scheduled_instances:
+            #print(instance.id)
     
         # prepare useful dicts
         image_with_instance_id = {}
