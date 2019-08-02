@@ -157,7 +157,7 @@ def createAMI(instance):
             ami.id
         ],
         WaiterConfig={
-            'Delay': 30,
+            'Delay': 45,
             'MaxAttempts': 40
         }
     )
