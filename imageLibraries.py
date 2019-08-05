@@ -152,53 +152,59 @@ def createAMI(instance):
     logging.info("Waiting for image %s to become available", ami.id)
     #ami.wait_until_exists();
     waiter = ec2_client.get_waiter('image_available')
-    waiter.wait(
-        ImageIds=[
-            ami.id
-        ],
-        WaiterConfig={
-            'Delay': 45,
-            'MaxAttempts': 40
-        }
-    )
-
-    ami.create_tags(
-        Tags=[
-            {
-                'Key': 'Name',
-                'Value': amiShortName
-            },
-            {
-                'Key': 'created',
-                'Value': str(time())
-            },
-            {
-                'Key': 'srcInstanceId',
-                'Value': instance.id
-            },
-            {
-                'Key': 'srcInstanceName',
-                'Value': instanceName
-            },
-            {
-                'Key': 'srcPrimaryIP',
-                'Value': primaryIp
-            },
-            {
-                'Key': 'srcSubnetId',
-                'Value': subnetId
-            },
-            {
-                # TODO it should be a list ...
-                'Key': 'srcSecurityGroupId',
-                'Value': securityGroupId
-            },
-            {
-                'Key': 'srcInstanceType',
-                'Value': instance.instance_type
+    try:
+        waiter.wait(
+            ImageIds=[
+                ami.id
+            ],
+            WaiterConfig={
+                'Delay': 45,
+                'MaxAttempts': 40
             }
-        ]
-    )
+        )
+    except botocore.exceptions.WaiterError:
+        print("[!] Creating AMI "+ami.id+" is taking to long. Will try to tag an continue")
+
+    try:
+        ami.create_tags(
+            Tags=[
+                {
+                    'Key': 'Name',
+                    'Value': amiShortName
+                },
+                {
+                    'Key': 'created',
+                    'Value': str(time())
+                },
+                {
+                    'Key': 'srcInstanceId',
+                    'Value': instance.id
+                },
+                {
+                    'Key': 'srcInstanceName',
+                    'Value': instanceName
+                },
+                {
+                    'Key': 'srcPrimaryIP',
+                    'Value': primaryIp
+                },
+                {
+                    'Key': 'srcSubnetId',
+                    'Value': subnetId
+                },
+                {
+                    # TODO it should be a list ...
+                    'Key': 'srcSecurityGroupId',
+                    'Value': securityGroupId
+                },
+                {
+                    'Key': 'srcInstanceType',
+                    'Value': instance.instance_type
+                }
+            ]
+        )
+    except:
+        print("[!] Faild to tag AMI "+ami.id)
     return ami
 
 def expireImages(images):
