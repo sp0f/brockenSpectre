@@ -150,18 +150,19 @@ def createAMI(instance):
     )
     securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
     logging.info("Waiting for image %s to become available", ami.id)
-    #ami.wait_until_exists();
-    waiter = ec2_client.get_waiter('image_available')
     try:
-        waiter.wait(
-            ImageIds=[
-                ami.id
-            ],
-            WaiterConfig={
-                'Delay': 45,
-                'MaxAttempts': 40
-            }
-        )
+        ami.wait_until_exists();
+    # waiter = ec2_client.get_waiter('image_available')
+    # try:
+    #     waiter.wait(
+    #         ImageIds=[
+    #             ami.id
+    #         ],
+    #         WaiterConfig={
+    #             'Delay': 45,
+    #             'MaxAttempts': 40
+    #         }
+    #     )
     except botocore.exceptions.WaiterError:
         print("[!] Creating AMI "+ami.id+" is taking to long. Will try to tag an continue")
 
