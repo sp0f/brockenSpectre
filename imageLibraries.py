@@ -201,6 +201,10 @@ def createAMI(instance):
                 {
                     'Key': 'srcInstanceType',
                     'Value': instance.instance_type
+                },
+                {
+                    'Key': 'boundryProtected',
+                    'Value': 'true'
                 }
             ]
         )
