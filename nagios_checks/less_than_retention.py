@@ -4,6 +4,8 @@ import boto3
 from sys import exit
 import datetime
 
+exclude_list=["adms"]
+
 
 def getInstancesWithBackupTag(ec2,backupTagValue="true"):
     """Find instances that have backup tag set to value of variable backupTagValue (default: backup: true)"""
@@ -55,6 +57,8 @@ def main():
             instanceName = getTag(instance, 'Name')
             if instanceName == None:
                 instanceName = ""
+            if instanceName in exclude_list:
+                continue
             retention=getTag(instance,'retention')
             if retention == None:
                 retention = 7
@@ -79,6 +83,7 @@ def main():
         exit(2)
     else:
         additional_info="new(unchecked) instances: "+", ".join(new_instance_list)
+        additional_info+=", excluded instances: "+", ".join(exclude_list)
         print "OK: "+additional_info+" | 0"
         exit(0)
 if __name__ == '__main__':
