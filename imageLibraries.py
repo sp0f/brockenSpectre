@@ -149,7 +149,7 @@ def createAMI(instance):
         NoReboot=True
     )
     securityGroupId, subnetId, primaryIp = getBasicNetworkConfig(instance)
-    logging.info("Waiting for image %s to become available", ami.id)
+    logging.info("Waiting until image exists %s to ", ami.id)
     try:
         ami.wait_until_exists();
     # waiter = ec2_client.get_waiter('image_available')
@@ -209,7 +209,49 @@ def createAMI(instance):
             ]
         )
     except:
-        print("[!] Faild to tag AMI "+ami.id)
+        print("[!] Faild to tag AMI "+ami.id+". Will try to wait for image to become available.")
+        ami.wait_until_exists(Filters=[{'Name': 'state', 'Values': ['available']}]);
+        ami.create_tags(
+            Tags=[
+                {
+                    'Key': 'Name',
+                    'Value': amiShortName
+                },
+                {
+                    'Key': 'created',
+                    'Value': str(time())
+                },
+                {
+                    'Key': 'srcInstanceId',
+                    'Value': instance.id
+                },
+                {
+                    'Key': 'srcInstanceName',
+                    'Value': instanceName
+                },
+                {
+                    'Key': 'srcPrimaryIP',
+                    'Value': primaryIp
+                },
+                {
+                    'Key': 'srcSubnetId',
+                    'Value': subnetId
+                },
+                {
+                    # TODO it should be a list ...
+                    'Key': 'srcSecurityGroupId',
+                    'Value': securityGroupId
+                },
+                {
+                    'Key': 'srcInstanceType',
+                    'Value': instance.instance_type
+                },
+                {
+                    'Key': 'boundryProtected',
+                    'Value': 'true'
+                }
+            ]
+        )
     return ami
 
 def expireImages(images):
