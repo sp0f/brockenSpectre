@@ -4,7 +4,7 @@ import logging
 from re import sub
 from tagLibraries import getTag
 from instanceLibraries import getBasicNetworkConfig
-from time import time, localtime, strftime, strptime, mktime
+from time import time, localtime, strftime, strptime, mktime, sleep
 import getConfigValue
 
 ec2 = boto3.resource('ec2', region_name='eu-west-1')
@@ -260,6 +260,8 @@ def expireImages(images):
         for image in images:
             logging.info("Deregistering image %s",image.id)
             image.deregister()
+            while len(ec2_client.describe_images(ImageIds=[image.id])['Images']) > 0:
+                sleep(5)
             deleteExpiredSnapshots(image.id)
 
 
